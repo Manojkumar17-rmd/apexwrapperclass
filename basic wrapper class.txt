@@ -1,0 +1,27 @@
+----Create a wrapper in same class and set the value in wrapper------------
+public with sharing class VendorsPCTController {
+
+@aruaEnabled
+public static RfqRecordWrapper getRFRecorddeatils(String rfqId){
+ RfqRecordWrapper instanceRfq = new RfqRecordWrapper(); // create new intance for aceess the wrapper class
+	try{
+	   RFQ__c rfqRecord = [Select Id, name,Date_of_the_RFQ__c,RFQ_Closing_Date__c,IsRelatedList__c From RFQ__c where Id =: rfqId LIMIT 1];
+            instanceRfq.rfqClosingDate =  DateTime.Valueof(rfqRecord.RFQ_Closing_Date__c.format('yyyy-MM-dd HH:mm:ss')); //set the value in wrapper class
+            instanceRfq.currentDate =  DateTime.Valueof(DateTime.now().format('yyyy-MM-dd HH:mm:ss')); //set the value in wrapper class
+            
+	} catch(DmlException  e) {
+            System.debug('An exception occurred::: ' + e.getMessage());
+            System.debug('An exception occurred::: ' + e.getStackTraceString());
+        }
+        return instanceRfq;
+
+
+}
+//Create a wrapper class
+public class RfqRecordWrapper{
+         @AuraEnabled
+         public  Datetime rfqClosingDate {get;set;}
+         @AuraEnabled
+         public  Datetime currentDate {get;set;}
+}
+}
