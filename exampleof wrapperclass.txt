@@ -1,0 +1,63 @@
+-------------lwc-----------
+html---------------
+<div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2" data-name="Title">
+                                    <lightning-input type="text" label="Title" value={title} name="title" onchange={handleChange} required></lightning-input>
+                                </div>
+<div>
+                                <lightning-textarea label="Notes" name ="note" onchange={handleChange} required></lightning-textarea>
+                            </div>
+---js-----
+ @track accNoteRec ={
+        title : '',
+        account : '',
+        personIncharge : '',
+        assistantPIC : '',
+        note : ''
+    };
+
+handleChange(event){
+       this.accNoteRec[event.target.name] = event.target.value;
+    }
+handleSave(event){
+        console.log('accNoteRec>>>>>>>>'+this.accNoteRec);
+        saveRecord({ 
+            accNote : JSON.stringify(this.accNoteRec)
+            }).then((recItem)=>{
+         
+            }).catch((error)=>{
+               
+            });
+    }
+-------------cls--------
+ @AuraEnabled
+    public static void saveAccNoteRecord(String accNote){
+        AccountNoteWrapper result =new AccountNoteWrapper((AccountNoteWrapper)JSON.deserialize(accNote, AccountNoteWrapper.class));
+        system.debug('result'+result);//DEBUG|accNoteToInsert**Account_Note__c:{Id=null, Account__c=001Ea00000JgNXNIA3, Assistant_PIC__c=null, Name=info, Note__c=comments, Period__c=null, Person_In_Charge__c=005Ea000007YjOUIA0}
+	//Create New Account Note Record
+        Account_Note__c accNoteToInsert = result.accNote;
+        insert accNoteToInsert;
+    }
+
+    public class AccountNoteWrapper{
+        @AuraEnabled public String accNoteid;
+        @AuraEnabled public String account;
+        @AuraEnabled public String assistant;
+        @AuraEnabled public String title;
+        @AuraEnabled public String note;
+        @AuraEnabled public String period;
+        @AuraEnabled public String personIncharge;
+        @AuraEnabled public Account_Note__c accNote = new Account_Note__c();
+
+        public AccountNoteWrapper(){
+        }
+
+        public AccountNoteWrapper(AccountNoteWrapper accNoteRec){
+            this.accNote.Id= accNoteRec.accNoteid;
+            this.accNote.Account__c=  accNoteRec.account;
+            this.accNote.Assistant_PIC__c =accNoteRec.assistant;
+            this.accNote.Name = accNoteRec.title;
+            this.accNote.Note__c =  accNoteRec.note;
+            this.accNote.Period__c =  accNoteRec.period;
+            this.accNote.Person_In_Charge__c =  accNoteRec.personIncharge;
+        }
+    }
